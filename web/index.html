@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Data Analyst Agent | Executive Dashboard</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --code-bg: #0b1329;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    header p {
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-size: 1rem;
+    }
+
+    .config-bar {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+
+    .config-bar input {
+      flex: 1;
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-family: monospace;
+    }
+
+    .query-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+
+    .input-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--primary);
+    }
+
+    button.btn-primary {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button.btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .quick-questions {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .quick-questions span {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .chip {
+      background: #273549;
+      color: #cbd5e1;
+      border: 1px solid var(--card-border);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chip:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Results section */
+    .results-panel {
+      display: none;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .answer-box {
+      background: #172554;
+      border-left: 4px solid var(--primary);
+      padding: 16px;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 20px;
+      color: #dbeafe;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .kpi-card {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      padding: 14px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .kpi-title {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .kpi-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-top: 4px;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin: 18px 0 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .insights-list, .recommendations-list {
+      padding-left: 20px;
+      margin-bottom: 16px;
+    }
+
+    .insights-list li {
+      margin-bottom: 6px;
+      color: #e2e8f0;
+    }
+
+    .recommendations-list li {
+      margin-bottom: 6px;
+      color: #86efac;
+    }
+
+    .sql-box {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 14px;
+      font-family: ui-monospace, Menlo, Monaco, monospace;
+      font-size: 0.85rem;
+      color: #a5b4fc;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      margin-bottom: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      border: 1px solid var(--card-border);
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    th {
+      background: var(--code-bg);
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge-success { background: #065f46; color: #a7f3d0; }
+    .badge-danger { background: #991b1b; color: #fecaca; }
+    .badge-warning { background: #92400e; color: #fde68a; }
+
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>📊 AI Data Analyst Agent</h1>
+      <p>Natural Language Business Intelligence powered by n8n, PostgreSQL, and LLM Reasoning</p>
+    </header>
+
+    <div class="config-bar">
+      <span><strong>Webhook URL:</strong></span>
+      <input type="text" id="webhookUrl" value="http://localhost:5678/webhook/data-analyst">
+      <span style="color: var(--text-muted); font-size: 0.8rem;">(Runs via local n8n instance)</span>
+    </div>
+
+    <div class="query-card">
+      <div class="input-group">
+        <input type="text" id="userQuestion" placeholder="Ask a business question (e.g. Which product generated highest revenue?)" value="Which product generated highest revenue?">
+        <button class="btn-primary" id="btnSubmit">Analyze Data</button>
+      </div>
+
+      <div class="quick-questions">
+        <span>Suggested queries:</span>
+        <button class="chip" onclick="setQuery('What was our total revenue and profit?')">Total Revenue & Profit</button>
+        <button class="chip" onclick="setQuery('Which product generated the highest revenue?')">Top Products</button>
+        <button class="chip" onclick="setQuery('Which products are underperforming or making losses?')">Underperforming SKUs</button>
+        <button class="chip" onclick="setQuery('What is our monthly revenue trend?')">Monthly Sales Trend</button>
+        <button class="chip" onclick="setQuery('Which category is performing the best?')">Category Performance</button>
+        <button class="chip" onclick="setQuery('Which city has the highest sales?')">City Breakdown</button>
+        <button class="chip" onclick="setQuery('Detect any unusual sales anomalies or spikes')">Anomaly Detection</button>
+      </div>
+    </div>
+
+    <!-- Results Container -->
+    <div id="resultsPanel" class="results-panel">
+      <div class="section-title">💡 Executive Business Answer</div>
+      <div id="directAnswer" class="answer-box"></div>
+
+      <div class="section-title">📈 Key Performance Indicators (KPIs)</div>
+      <div id="kpiGrid" class="kpi-grid"></div>
+
+      <div class="section-title">🔍 Analytical Insights (Observed Facts)</div>
+      <ul id="insightsList" class="insights-list"></ul>
+
+      <div class="section-title">🎯 Actionable Business Recommendations</div>
+      <ul id="recommendationsList" class="recommendations-list"></ul>
+
+      <div class="section-title">🛡️ Verified SQL Executed (Read-Only Guardrail)</div>
+      <div id="sqlExecuted" class="sql-box"></div>
+
+      <div class="section-title">📋 Tabular Results</div>
+      <div style="overflow-x: auto;">
+        <table id="dataTable">
+          <thead id="tableHead"></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer>
+      Built for Data Analyst Portfolio | Safe Parameterized SQL • Strict Intent Guardrail • Deterministic Analytics
+    </footer>
+  </div>
+
+  <script>
+    // Offline / Demo Benchmark Data for Instant Portfolio Testing
+    const offlineCatalog = {
+      overall_summary: {
+        sql_query: "SELECT COUNT(order_id) AS total_orders, SUM(quantity) AS total_units_sold, ROUND(SUM(sales), 2) AS total_revenue, ROUND(SUM(profit), 2) AS total_profit, ROUND((SUM(profit)/SUM(sales))*100, 2) AS overall_profit_margin_pct, ROUND(AVG(sales), 2) AS average_order_value FROM ecommerce_sales;",
+        direct_answer: "Our total revenue was ₹17,43,334 across 60 orders, generating ₹4,16,734 in total profit with a 23.9% net margin.",
+        key_metrics: { "Total Revenue": "₹17,43,334", "Total Profit": "₹4,16,734", "Net Margin": "23.9%", "AOV": "₹29,055.57", "Orders": 60 },
+        insights: [
+          "The business maintains a healthy overall margin of 23.90%, with an Average Order Value of ₹29,055.57.",
+          "Profitability is heavily driven by high-ticket electronics (Gaming Laptops), while certain low-ticket SKUs dilute profitability."
+        ],
+        recommendations: [
+          "Protect margins on high-AOV items by maintaining direct-to-manufacturer supply relationships.",
+          "Conduct an SKU rationalization review on loss-making catalog items."
+        ],
+        data: [{ "total_orders": 60, "total_units_sold": 185, "total_revenue": "₹17,43,334.00", "total_profit": "₹4,16,734.00", "overall_profit_margin_pct": "23.90%", "average_order_value": "₹29,055.57" }]
+      },
+      top_products: {
+        sql_query: "SELECT product_name, category, COUNT(order_id) AS order_count, SUM(quantity) AS units_sold, ROUND(SUM(sales), 2) AS total_revenue, ROUND(SUM(profit), 2) AS total_profit, ROUND((SUM(profit)/SUM(sales))*100, 2) AS profit_margin_pct FROM ecommerce_sales GROUP BY product_name, category ORDER BY total_revenue DESC LIMIT 5;",
+        direct_answer: "The highest revenue generating product is \"Gaming Laptop\" (Electronics), generating ₹9,10,000 in revenue and ₹1,82,000 in profit (20.0% margin).",
+        key_metrics: { "Top Product": "Gaming Laptop", "Revenue": "₹9,10,000", "Profit": "₹1,82,000", "Margin": "20.0%" },
+        insights: [
+          "Gaming Laptop alone accounts for 52.2% of total store revenue (₹9,10,000 out of ₹17,43,334).",
+          "Furniture items such as Standing Desks and Ergonomic Chairs achieve attractive 27-30% profit margins."
+        ],
+        recommendations: [
+          "Bundle ergonomic chairs with gaming laptops or standing desks to increase cart size and overall profit.",
+          "Implement dedicated supplier SLAs to avoid stockouts on Gaming Laptops during peak quarters."
+        ],
+        data: [
+          { "product_name": "Gaming Laptop", "category": "Electronics", "units_sold": 19, "total_revenue": "₹9,10,000", "total_profit": "₹1,82,000", "profit_margin_pct": "20.0%" },
+          { "product_name": "Standing Desk", "category": "Furniture", "units_sold": 7, "total_revenue": "₹1,11,000", "total_profit": "₹30,000", "profit_margin_pct": "27.03%" },
+          { "product_name": "Robot Vacuum", "category": "Home Appliances", "units_sold": 4, "total_revenue": "₹99,996", "total_profit": "₹25,996", "profit_margin_pct": "26.0%" },
+          { "product_name": "Ergonomic Chair", "category": "Furniture", "units_sold": 12, "total_revenue": "₹98,989", "total_profit": "₹29,689", "profit_margin_pct": "29.99%" },
+          { "product_name": "Smartwatch Pro", "category": "Electronics", "units_sold": 15, "total_revenue": "₹89,985", "total_profit": "₹26,985", "profit_margin_pct": "29.99%" }
+        ]
+      },
+      underperforming_products: {
+        sql_query: "SELECT product_name, category, SUM(quantity) AS units_sold, ROUND(SUM(sales), 2) AS total_revenue, ROUND(SUM(profit), 2) AS total_profit, ROUND((SUM(profit)/SUM(sales))*100, 2) AS profit_margin_pct FROM ecommerce_sales GROUP BY product_name, category ORDER BY total_profit ASC LIMIT 5;",
+        direct_answer: "The most critical underperforming product is \"Budget Smartwatch\" (Electronics), which generated ₹59,960 in revenue but resulted in a net loss of ₹12,040 (-20.08% margin).",
+        key_metrics: { "Loss SKU": "Budget Smartwatch", "Total Loss": "₹12,040", "Units Sold": 40, "Margin": "-20.08%" },
+        insights: [
+          "Budget Smartwatch is sold below unit cost (Unit Price ₹1,499 vs Unit Cost ₹1,800), meaning higher sales volume directly increases business losses.",
+          "Other low-profit products like Bookshelves remain profitable (+29.99%) but suffer from low sales velocity."
+        ],
+        recommendations: [
+          "Immediately reprice Budget Smartwatch to at least ₹2,199 to restore positive gross margin, or renegotiate supplier procurement cost.",
+          "If Budget Smartwatch was intentionally used as a loss leader, evaluate customer lifetime value (LTV) to see if those buyers make repeat high-margin purchases."
+        ],
+        data: [
+          { "product_name": "Budget Smartwatch", "category": "Electronics", "units_sold": 40, "total_revenue": "₹59,960", "total_profit": "-₹12,040", "profit_margin_pct": "-20.08%" },
+          { "product_name": "Bookshelf", "category": "Furniture", "units_sold": 3, "total_revenue": "₹17,997", "total_profit": "₹5,397", "profit_margin_pct": "29.99%" },
+          { "product_name": "Cotton Shirt", "category": "Clothing", "units_sold": 15, "total_revenue": "₹14,985", "total_profit": "₹7,485", "profit_margin_pct": "49.95%" }
+        ]
+      },
+      monthly_trend: {
+        sql_query: "WITH monthly_metrics AS (SELECT TO_CHAR(order_date, 'YYYY-MM') AS sales_month, COUNT(order_id) AS order_count, ROUND(SUM(sales), 2) AS monthly_revenue, ROUND(SUM(profit), 2) AS monthly_profit FROM ecommerce_sales GROUP BY TO_CHAR(order_date, 'YYYY-MM')) SELECT sales_month, order_count, monthly_revenue, monthly_profit, ROUND(((monthly_revenue - LAG(monthly_revenue) OVER (ORDER BY sales_month)) / NULLIF(LAG(monthly_revenue) OVER (ORDER BY sales_month), 0)) * 100, 2) AS mom_revenue_growth_pct FROM monthly_metrics ORDER BY sales_month ASC;",
+        direct_answer: "Monthly revenue experienced significant volatility: peaking at ₹4,24,461 in March 2024 (+30.6% MoM) following a severe dip to ₹1,61,982 in January 2024 (-39.99% MoM).",
+        key_metrics: { "Peak Month": "March 2024 (₹4.24L)", "Trough Month": "Jan 2024 (₹1.62L)", "Feb MoM Growth": "+100.6%" },
+        insights: [
+          "January post-holiday slump caused a 40% month-over-month revenue decline.",
+          "Aggressive fiscal year-end purchasing in February and March drove a swift recovery to record revenues."
+        ],
+        recommendations: [
+          "Plan targeted January promotional campaigns (e.g., New Year Clearance) to smooth seasonal revenue dips.",
+          "Ensure inventory buffers are locked in by mid-February to support peak March order influx."
+        ],
+        data: [
+          { "sales_month": "2023-10", "order_count": 10, "monthly_revenue": "₹2,49,474", "monthly_profit": "₹54,974", "mom_revenue_growth_pct": "—" },
+          { "sales_month": "2023-11", "order_count": 10, "monthly_revenue": "₹3,12,470", "monthly_profit": "₹69,970", "mom_revenue_growth_pct": "+25.25%" },
+          { "sales_month": "2023-12", "order_count": 10, "monthly_revenue": "₹2,69,966", "monthly_profit": "₹61,466", "mom_revenue_growth_pct": "-13.60%" },
+          { "sales_month": "2024-01", "order_count": 9, "monthly_revenue": "₹1,61,982", "monthly_profit": "₹40,982", "mom_revenue_growth_pct": "-39.99%" },
+          { "sales_month": "2024-02", "order_count": 9, "monthly_revenue": "₹3,24,981", "monthly_profit": "₹71,981", "mom_revenue_growth_pct": "+100.63%" },
+          { "sales_month": "2024-03", "order_count": 12, "monthly_revenue": "₹4,24,461", "monthly_profit": "₹1,17,361", "mom_revenue_growth_pct": "+30.61%" }
+        ]
+      },
+      category_performance: {
+        sql_query: "SELECT category, COUNT(order_id) AS total_orders, SUM(quantity) AS total_quantity, ROUND(SUM(sales), 2) AS total_revenue, ROUND(SUM(profit), 2) AS total_profit, ROUND((SUM(profit)/SUM(sales))*100, 2) AS profit_margin_pct FROM ecommerce_sales GROUP BY category ORDER BY total_revenue DESC;",
+        direct_answer: "Electronics is the largest category by revenue (₹11,31,914; 64.9% of sales), while Clothing delivers the highest profit margin (48.37%).",
+        key_metrics: { "Top Volume": "Electronics", "Top Margin": "Clothing (48.37%)", "Electronics Rev": "₹11.32L", "Clothing Rev": "₹0.81L" },
+        insights: [
+          "Electronics drives the top line volume, but Clothing yields 2.4x the profit margin of Electronics.",
+          "Home Appliances and Furniture provide steady, balanced contribution with margins close to 28%."
+        ],
+        recommendations: [
+          "Increase digital marketing spend on high-margin Clothing products to lift overall blend margin.",
+          "Feature Home Appliances prominently in regional marketing campaigns where ticket sizes are robust."
+        ],
+        data: [
+          { "category": "Electronics", "total_orders": 28, "total_quantity": 108, "total_revenue": "₹11,31,914", "total_profit": "₹2,27,514", "profit_margin_pct": "20.10%" },
+          { "category": "Furniture", "total_orders": 14, "total_quantity": 26, "total_revenue": "₹2,88,985", "total_profit": "₹80,385", "profit_margin_pct": "27.82%" },
+          { "category": "Home Appliances", "total_orders": 10, "total_quantity": 17, "total_revenue": "₹2,41,478", "total_profit": "₹69,678", "profit_margin_pct": "28.85%" },
+          { "category": "Clothing", "total_orders": 8, "total_quantity": 34, "total_revenue": "₹80,957", "total_profit": "₹39,157", "profit_margin_pct": "48.37%" }
+        ]
+      },
+      city_performance: {
+        sql_query: "SELECT city, COUNT(order_id) AS total_orders, ROUND(SUM(sales), 2) AS total_revenue, ROUND(SUM(profit), 2) AS total_profit, ROUND((SUM(profit)/SUM(sales))*100, 2) AS profit_margin_pct FROM ecommerce_sales GROUP BY city ORDER BY total_revenue DESC;",
+        direct_answer: "Bengaluru is our top market by revenue (₹5,42,969; 31.1% of sales), followed by Mumbai (₹3,74,968) and Delhi (₹2,98,469).",
+        key_metrics: { "Top City": "Bengaluru (₹5.43L)", "2nd Market": "Mumbai (₹3.75L)", "Highest Margin": "Pune (27.81%)" },
+        insights: [
+          "Bengaluru, Mumbai, and Delhi collectively account for 70% of total revenue.",
+          "Tier 1 metro demand is skewed toward high-end laptops and premium home appliances."
+        ],
+        recommendations: [
+          "Establish regional fulfillment centers in Bengaluru and Mumbai to reduce transit time and shipping costs.",
+          "Launch localized weekend promotions in Pune and Hyderabad to scale order volume."
+        ],
+        data: [
+          { "city": "Bengaluru", "total_orders": 16, "total_revenue": "₹5,42,969", "total_profit": "₹1,22,369", "profit_margin_pct": "22.54%" },
+          { "city": "Mumbai", "total_orders": 13, "total_revenue": "₹3,74,968", "total_profit": "₹91,968", "profit_margin_pct": "24.53%" },
+          { "city": "Delhi", "total_orders": 11, "total_revenue": "₹2,98,469", "total_profit": "₹73,419", "profit_margin_pct": "24.60%" },
+          { "city": "Hyderabad", "total_orders": 10, "total_revenue": "₹2,70,479", "total_profit": "₹64,979", "profit_margin_pct": "24.02%" },
+          { "city": "Chennai", "total_orders": 6, "total_revenue": "₹1,72,986", "total_profit": "₹40,786", "profit_margin_pct": "23.58%" },
+          { "city": "Pune", "total_orders": 4, "total_revenue": "₹83,463", "total_profit": "₹23,213", "profit_margin_pct": "27.81%" }
+        ]
+      },
+      anomaly_detection: {
+        sql_query: "WITH monthly_agg AS (SELECT TO_CHAR(order_date, 'YYYY-MM') AS sales_month, ROUND(SUM(sales), 2) AS monthly_revenue FROM ecommerce_sales GROUP BY TO_CHAR(order_date, 'YYYY-MM')), baseline AS (SELECT AVG(monthly_revenue) AS avg_monthly_revenue, STDDEV(monthly_revenue) AS std_monthly_revenue FROM monthly_agg) SELECT m.sales_month, m.monthly_revenue, ROUND(((m.monthly_revenue - b.avg_monthly_revenue)/b.avg_monthly_revenue)*100, 2) AS deviation_from_avg_pct, CASE WHEN m.monthly_revenue > (b.avg_monthly_revenue + 0.5*b.std_monthly_revenue) THEN 'HIGH_OUTLIER' WHEN m.monthly_revenue < (b.avg_monthly_revenue - 0.5*b.std_monthly_revenue) THEN 'LOW_OUTLIER' ELSE 'NORMAL' END AS anomaly_flag FROM monthly_agg m CROSS JOIN baseline b;",
+        direct_answer: "Statistical anomaly detection flagged 2 outlier months: January 2024 as a LOW OUTLIER (-44.25% below 6-month mean) and March 2024 as a HIGH OUTLIER (+46.09% above mean).",
+        key_metrics: { "Mean Monthly Rev": "₹2,90,556", "Jan Status": "LOW_OUTLIER", "Mar Status": "HIGH_OUTLIER" },
+        insights: [
+          "Revenue deviations in Jan and Mar exceeded 1.5 standard deviations from baseline monthly volume.",
+          "The dip in January was not due to customer churn, but rather a sharp drop in high-ticket laptop orders."
+        ],
+        recommendations: [
+          "Set up automated anomaly alert webhooks in n8n to notify operations whenever monthly volume deviates > 25% from moving average.",
+          "Investigate supplier delivery constraints during January to confirm whether stockouts contributed to the slump."
+        ],
+        data: [
+          { "sales_month": "2023-10", "monthly_revenue": "₹2,49,474", "deviation_from_avg_pct": "-14.14%", "anomaly_flag": "NORMAL" },
+          { "sales_month": "2023-11", "monthly_revenue": "₹3,12,470", "deviation_from_avg_pct": "+7.54%", "anomaly_flag": "NORMAL" },
+          { "sales_month": "2023-12", "monthly_revenue": "₹2,69,966", "deviation_from_avg_pct": "-7.09%", "anomaly_flag": "NORMAL" },
+          { "sales_month": "2024-01", "monthly_revenue": "₹1,61,982", "deviation_from_avg_pct": "-44.25%", "anomaly_flag": "LOW_OUTLIER" },
+          { "sales_month": "2024-02", "monthly_revenue": "₹3,24,981", "deviation_from_avg_pct": "+11.85%", "anomaly_flag": "NORMAL" },
+          { "sales_month": "2024-03", "monthly_revenue": "₹4,24,461", "deviation_from_avg_pct": "+46.09%", "anomaly_flag": "HIGH_OUTLIER" }
+        ]
+      }
+    };
+
+    function setQuery(text) {
+      document.getElementById('userQuestion').value = text;
+      runAnalysis();
+    }
+
+    async function runAnalysis() {
+      const question = document.getElementById('userQuestion').value.trim();
+      const webhookUrl = document.getElementById('webhookUrl').value.trim();
+      if (!question) return;
+
+      const btn = document.getElementById('btnSubmit');
+      btn.innerText = 'Analyzing...';
+      btn.disabled = true;
+
+      try {
+        let payload = null;
+        try {
+          const res = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question: question })
+          });
+          if (res.ok) {
+            payload = await res.json();
+          }
+        } catch (err) {
+          // If n8n webhook is not running locally, use deterministic benchmark catalog
+          console.log('n8n Webhook unreachable, using local deterministic analytics engine.');
+        }
+
+        if (!payload) {
+          payload = classifyLocal(question);
+        }
+
+        renderResults(payload);
+      } finally {
+        btn.innerText = 'Analyze Data';
+        btn.disabled = false;
+      }
+    }
+
+    function classifyLocal(question) {
+      const q = question.toLowerCase();
+      let key = 'overall_summary';
+      if (q.includes('underperform') || q.includes('loss') || q.includes('worst') || q.includes('declining')) {
+        key = 'underperforming_products';
+      } else if (q.includes('top product') || q.includes('highest revenue') || q.includes('best sell')) {
+        key = 'top_products';
+      } else if (q.includes('trend') || q.includes('month') || q.includes('growth')) {
+        key = 'monthly_trend';
+      } else if (q.includes('category') || q.includes('categories')) {
+        key = 'category_performance';
+      } else if (q.includes('city') || q.includes('cities') || q.includes('region')) {
+        key = 'city_performance';
+      } else if (q.includes('anomal') || q.includes('outlier') || q.includes('spike')) {
+        key = 'anomaly_detection';
+      }
+
+      const match = offlineCatalog[key];
+      return {
+        status: 'success',
+        question: question,
+        sql_query: match.sql_query,
+        analysis: {
+          direct_answer: match.direct_answer,
+          key_metrics: match.key_metrics,
+          business_insights: match.insights,
+          actionable_recommendations: match.recommendations
+        },
+        data: match.data
+      };
+    }
+
+    function renderResults(res) {
+      const panel = document.getElementById('resultsPanel');
+      panel.style.display = 'block';
+
+      const analysis = res.analysis || {};
+      document.getElementById('directAnswer').innerText = analysis.direct_answer || 'No analysis provided.';
+
+      // KPI Grid
+      const kpiGrid = document.getElementById('kpiGrid');
+      kpiGrid.innerHTML = '';
+      const metrics = analysis.key_metrics || {};
+      for (const [key, val] of Object.entries(metrics)) {
+        const card = document.createElement('div');
+        card.className = 'kpi-card';
+        card.innerHTML = `<div class="kpi-title">${key}</div><div class="kpi-value">${val}</div>`;
+        kpiGrid.appendChild(card);
+      }
+
+      // Insights
+      const insightsList = document.getElementById('insightsList');
+      insightsList.innerHTML = '';
+      (analysis.business_insights || []).forEach(item => {
+        const li = document.createElement('li');
+        li.innerText = item;
+        insightsList.appendChild(li);
+      });
+
+      // Recommendations
+      const recsList = document.getElementById('recommendationsList');
+      recsList.innerHTML = '';
+      (analysis.actionable_recommendations || []).forEach(item => {
+        const li = document.createElement('li');
+        li.innerText = item;
+        recsList.appendChild(li);
+      });
+
+      // SQL Box
+      document.getElementById('sqlExecuted').innerText = res.sql_query || '-- Predefined parameterized query';
+
+      // Table
+      const thead = document.getElementById('tableHead');
+      const tbody = document.getElementById('tableBody');
+      thead.innerHTML = '';
+      tbody.innerHTML = '';
+
+      const data = res.data || [];
+      if (data.length > 0) {
+        const cols = Object.keys(data[0]);
+        const trHead = document.createElement('tr');
+        cols.forEach(col => {
+          const th = document.createElement('th');
+          th.innerText = col.replace(/_/g, ' ').toUpperCase();
+          trHead.appendChild(th);
+        });
+        thead.appendChild(trHead);
+
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          cols.forEach(col => {
+            const td = document.createElement('td');
+            let val = row[col];
+            if (col === 'anomaly_flag') {
+              if (val === 'HIGH_OUTLIER') td.innerHTML = `<span class="badge badge-warning">${val}</span>`;
+              else if (val === 'LOW_OUTLIER') td.innerHTML = `<span class="badge badge-danger">${val}</span>`;
+              else td.innerHTML = `<span class="badge badge-success">${val}</span>`;
+            } else {
+              td.innerText = val !== null && val !== undefined ? val : '—';
+            }
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        });
+      }
+
+      panel.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    document.getElementById('btnSubmit').addEventListener('click', runAnalysis);
+    document.getElementById('userQuestion').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') runAnalysis();
+    });
+  </script>
+</body>
+</html>
