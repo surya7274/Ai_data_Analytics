@@ -160,7 +160,7 @@ The project uses a representative e-commerce transactions dataset (`data/sample_
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/ai-data-analyst-agent-n8n.git
+git clone https://github.com/surya7274/ai-data-analyst-agent-n8n.git
 cd ai-data-analyst-agent-n8n
 ```
 
